@@ -1,0 +1,201 @@
+SQL> 
+SQL> --Création des tables
+SQL> 
+SQL> CREATE TABLE Client (
+  2  numClient INTEGER NOT NULL,
+  3  dateHeureInscription DATE NOT NULL,
+  4  nom VARCHAR (15) NOT NULL,
+  5  prenom VARCHAR (15) NOT NULL,
+  6  courriel VARCHAR (30) NOT NULL,
+  7  addresse VARCHAR (100) NOT NULL,
+  8  typeClient CHAR NOT NULL,
+  9  PRIMARY KEY (numClient)
+ 10  );
+
+Table CLIENT created.
+
+SQL> /
+SQL> 
+SQL> CREATE TABLE Corporatif (
+  2  numClient INTEGER NOT NULL,
+  3  Compagnie VARCHAR (30) NOT NULL,
+  4  numCompagnie INTEGER NOT NULL,
+  5  dateHeureInscription DATE NOT NULL,
+  6  nom VARCHAR (15) NOT NULL,
+  7  prenom VARCHAR (15) NOT NULL,
+  8  courriel VARCHAR (30) NOT NULL,
+  9  addresse VARCHAR (100) NOT NULL,
+ 10  typeClient CHAR NOT NULL,
+ 11  FOREIGN KEY (numClient) REFERENCES Client
+ 12  );
+
+Table CORPORATIF created.
+
+SQL> /
+SQL> 
+SQL> CREATE TABLE Categories (
+  2  codeCategorie INTEGER NOT NULL,
+  3  codeCategorieParent INTEGER NOT NULL,
+  4  nomCategorie VARCHAR (30) NOT NULL,
+  5  PRIMARY KEY (codeCategorie)
+  6  );
+
+Table CATEGORIES created.
+
+SQL> /
+SQL> 
+SQL> CREATE TABLE Fournisseurs (
+  2  numFournisseur INTEGER NOT NULL,
+  3  nomFournisseur VARCHAR (30) NOT NULL,
+  4  PRIMARY KEY (numFournisseur)
+  5  );
+
+Table FOURNISSEURS created.
+
+SQL> /
+SQL> 
+SQL> CREATE TABLE Article (
+  2  numArticle INTEGER NOT NULL,
+  3  codeCategorie INTEGER NOT NULL,
+  4  numFournisseur INTEGER NOT NULL,
+  5  description VARCHAR (100) NOT NULL,
+  6  prix DECIMAL NOT NULL
+  7  CHECK (prix >= 0), 
+  8  quantite INTEGER NOT NULL
+  9  CHECK (quantite >= 0), 
+ 10  URL VARCHAR (100) NOT NULL,
+ 11  PRIMARY KEY (numArticle),
+ 12  FOREIGN KEY (codeCategorie) REFERENCES Categories,
+ 13  FOREIGN KEY (numFournisseur) REFERENCES Fournisseurs
+ 14  );
+
+Table ARTICLE created.
+
+SQL> /
+SQL> 
+SQL> CREATE TABLE Commande (
+  2  numCommande INTEGER NOT NULL,
+  3  numClient INTEGER NOT NULL,
+  4  dateHeureCommande DATE NOT NULL,
+  5  PRIMARY KEY (numCommande),
+  6  FOREIGN KEY (numClient) REFERENCES Client
+  7  );
+
+Table COMMANDE created.
+
+SQL> /
+SQL> 
+SQL> CREATE TABLE LigneCommande (
+  2  numCommande INTEGER NOT NULL,
+  3  numArticle  INTEGER NOT NULL,
+  4  quantiteCommande    INTEGER NOT NULL
+  5  CHECK (quantiteCommande > 0),
+  6  PRIMARY KEY (numCommande,numArticle),
+  7  FOREIGN KEY (numCommande) REFERENCES Commande,
+  8  FOREIGN KEY (numArticle) REFERENCES Article
+  9  );
+
+Table LIGNECOMMANDE created.
+
+SQL> /
+SQL> 
+SQL> CREATE TABLE ConsulterCommandes (
+  2  numClient INTEGER NOT NULL,
+  3  numCommande INTEGER NOT NULL,
+  4  dateHeureCommande INTEGER NOT NULL,
+  5  FOREIGN KEY (numClient) REFERENCES Client,
+  6  FOREIGN KEY (numCommande) REFERENCES Commande
+  7  );
+
+Table CONSULTERCOMMANDES created.
+
+SQL> /
+SQL> 
+SQL> CREATE TABLE Livraison (
+  2  numLivraison              INTEGER NOT NULL,
+  3  numClient                 INTEGER NOT NULL,
+  4  dateLivraison             DATE NOT NULL,
+  5  PRIMARY KEY (numLivraison),
+  6  FOREIGN KEY (numClient)   REFERENCES Client
+  7  );
+
+Table LIVRAISON created.
+
+SQL> 
+SQL> CREATE TABLE LigneLivraison (
+  2  numLivraison INTEGER NOT NULL,
+  3  numArticle INTEGER NOT NULL,
+  4  numCommande  INTEGER NOT NULL,
+  5  qteArticleLivree  INTEGER NOT NULL,
+  6  FOREIGN KEY (numLivraison) REFERENCES Livraison,
+  7  FOREIGN KEY (numArticle) REFERENCES Article,
+  8  FOREIGN KEY (numCommande)  REFERENCES Commande
+  9  );
+
+Table LIGNELIVRAISON created.
+
+SQL> /
+SQL> 
+SQL> CREATE TABLE Facture (
+  2  numLivraison             INTEGER NOT NULL,     
+  3  numClient                INTEGER NOT NULL,     
+  4  qteArticle 	             INTEGER NOT NULL,    
+  5  dateLimitePaiement       DATE NOT NULL,      
+  6  montantApresEscompte     DECIMAL NOT NULL, 
+  7  PRIMARY KEY (numLivraison), 
+  8  FOREIGN KEY (numClient)  REFERENCES Client
+  9  );
+
+Table FACTURE created.
+
+SQL> /
+SQL> 
+SQL> CREATE TABLE Paiement (   
+  2  numPaiement         INTEGER NOT NULL,
+  3  numLivraison        INTEGER NOT NULL,     
+  4  datePaiement 	    DATE NOT NULL,     
+  5  montantPaiement 	DECIMAL NOT NULL,     
+  6  montantTotalFacture DECIMAL NOT NULL,     
+  7  totalPaiement 	    DECIMAL NOT NULL,     
+  8  montantRestant 	    DECIMAL NOT NULL, 
+  9      PRIMARY KEY (numPaiement), 
+ 10      FOREIGN KEY (numLivraison) REFERENCES Livraison 
+ 11  );
+
+Table PAIEMENT created.
+
+SQL> /
+SQL> 
+SQL> CREATE TABLE CarteCredit (     
+  2  numCarte             VARCHAR (12) NOT NULL,     
+  3  numLivraison         INTEGER NOT NULL, 
+  4  typeCarte            VARCHAR (2) NOT NULL    
+  5  CHECK (typeCarte IN ('V','MC', 'AE')),
+  6  moisExpiration       DATE NOT NULL,     
+  7  numPaiement	         INTEGER NOT NULL, 
+  8  PRIMARY KEY (numCarte), 
+  9  FOREIGN KEY (numLivraison) REFERENCES Paiement
+ 10  );
+
+Table CARTECREDIT created.
+
+SQL> /
+SQL> 
+SQL> CREATE TABLE Cheque (     
+  2  numCheque 	INTEGER NOT NULL,     
+  3  numLivraison 	INTEGER NOT NULL,     
+  4  idBanqueClient       INTEGER NOT NULL,     
+  5  idBanque 	            INTEGER NOT NULL, 
+  6  PRIMARY KEY (numCheque), 
+  7  FOREIGN KEY (numLivraison) REFERENCES Paiement 
+  8  );
+
+Table CHEQUE created.
+
+SQL> /
+SQL> 
+SQL> COMMIT
+  2  /
+
+Commit complete.
+
